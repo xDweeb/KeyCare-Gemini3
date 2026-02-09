@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Premium spacebar with subtle border -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#252D38"/>
+            <corners android:radius="16dp"/>
+            <stroke
+                android:width="1dp"
+                android:color="#00E5C440"/>
+        </shape>
+    </item>
+    <item>
+        <layer-list>
+            <!-- Shadow -->
+            <item android:top="2dp">
+                <shape android:shape="rectangle">
+                    <solid android:color="#0A0D12"/>
+                    <corners android:radius="16dp"/>
+                </shape>
+            </item>
+            <!-- Surface -->
+            <item android:bottom="2dp">
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:type="linear"
+                        android:angle="270"
+                        android:startColor="#1A2230"
+                        android:endColor="#141A24"/>
+                    <corners android:radius="16dp"/>
+                    <stroke
+                        android:width="1dp"
+                        android:color="#00E5C420"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>

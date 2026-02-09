@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer glow -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#1A00E6C3" />
+            <size android:width="140dp" android:height="140dp" />
+        </shape>
+    </item>
+    <!-- Middle glow -->
+    <item android:left="15dp" android:top="15dp" android:right="15dp" android:bottom="15dp">
+        <shape android:shape="oval">
+            <solid android:color="#3300E6C3" />
+        </shape>
+    </item>
+    <!-- Inner circle -->
+    <item android:left="30dp" android:top="30dp" android:right="30dp" android:bottom="30dp">
+        <shape android:shape="oval">
+            <solid android:color="#4D00E6C3" />
+        </shape>
+    </item>
+</layer-list>

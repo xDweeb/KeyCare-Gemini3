@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Animated safe pill with glow -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#0A2A1E"/>
+    <stroke
+        android:width="1dp"
+        android:color="#2ECC7150"/>
+    <corners android:radius="14dp"/>
+    <padding
+        android:left="10dp"
+        android:right="10dp"
+        android:top="4dp"
+        android:bottom="4dp"/>
+</shape>

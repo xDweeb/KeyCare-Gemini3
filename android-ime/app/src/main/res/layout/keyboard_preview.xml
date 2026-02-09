@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Keyboard Preview Layout for Scale Settings -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/previewRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_keyboard_gradient"
+    android:paddingHorizontal="4dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="8dp">
+
+    <!-- Number Row Preview -->
+    <LinearLayout
+        android:id="@+id/previewNumberRow"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal">
+
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="1" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="2" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="3" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="4" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="5" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="6" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="7" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="8" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="9" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="0" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+    </LinearLayout>
+
+    <!-- Row 1 Preview: Q W E R T Y U I O P -->
+    <LinearLayout
+        android:id="@+id/previewRow1"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal">
+
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="q" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="w" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="e" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="r" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="t" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="y" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="u" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="i" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="o" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="p" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+    </LinearLayout>
+
+    <!-- Row 2 Preview: A S D F G H J K L -->
+    <LinearLayout
+        android:id="@+id/previewRow2"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:paddingHorizontal="14dp">
+
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="a" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="s" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="d" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="f" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="g" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="h" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="j" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="k" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="l" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+    </LinearLayout>
+
+    <!-- Row 3 Preview: SHIFT Z X C V B N M BACKSPACE -->
+    <LinearLayout
+        android:id="@+id/previewRow3"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal">
+
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:text="⇧" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_special_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="z" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="x" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="c" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="v" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="b" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="n" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="m" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:text="⌫" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_special_premium" android:gravity="center" android:layout_margin="2dp"/>
+    </LinearLayout>
+
+    <!-- Row 4 Preview: 123 LANG , SPACE . ENTER -->
+    <LinearLayout
+        android:id="@+id/previewRow4"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal">
+
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.2" android:text="123" android:textSize="13sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_special_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="🌐" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.8" android:text="," android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:id="@+id/previewSpace" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="4" android:text="EN • KeyCare" android:textSize="12sp" android:textColor="#9AA4AF" android:background="@drawable/bg_spacebar_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.8" android:text="." android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:gravity="center" android:layout_margin="2dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:text="↵" android:textSize="18sp" android:textColor="#0B0F14" android:background="@drawable/bg_key_action_premium" android:gravity="center" android:layout_margin="2dp"/>
+    </LinearLayout>
+
+</LinearLayout>

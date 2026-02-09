@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Colors -->
+    <color name="bg">#0B0F14</color>
+    <color name="card">#121821</color>
+    <color name="primary">#00E6C3</color>
+    <color name="primaryDark">#00BFA6</color>
+    <color name="text">#FFFFFF</color>
+    <color name="textMuted">#9AA4AF</color>
+    <color name="warning">#FF9F1C</color>
+    <color name="danger">#FF4D4F</color>
+    <color name="borderDark">#1C2633</color>
+    
+    <!-- Legacy -->
+    <color name="ic_launcher_background">#0B0F14</color>
+</resources>

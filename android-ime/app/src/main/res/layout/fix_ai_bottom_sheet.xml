@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fix with AI Bottom Sheet - Premium Dark Theme -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fixAiBottomSheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_bottom_sheet"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="20dp"
+    android:visibility="gone"
+    android:elevation="8dp">
+
+    <!-- Handle Bar -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_handle_bar"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="✨ Fix with AI"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/fixAiLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AI suggestions"
+            android:textColor="#6B7785"
+            android:textSize="10sp"
+            android:background="@drawable/bg_label_ai"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"/>
+    </LinearLayout>
+
+    <!-- Tone Selector Chips -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="14dp">
+
+        <TextView
+            android:id="@+id/toneCalm"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="😌 Calm"
+            android:textColor="#00E5C4"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:background="@drawable/bg_tone_chip_selected"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/toneRespectful"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="🤝 Respectful"
+            android:textColor="#9AA4AF"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:background="@drawable/bg_tone_chip"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/toneProfessional"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="💼 Professional"
+            android:textColor="#9AA4AF"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:background="@drawable/bg_tone_chip"/>
+    </LinearLayout>
+
+    <!-- Loading Skeleton -->
+    <LinearLayout
+        android:id="@+id/fixAiLoading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginBottom="12dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/bg_skeleton"
+            android:layout_marginBottom="8dp"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/bg_skeleton"
+            android:layout_marginBottom="8dp"/>
+        <View
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:background="@drawable/bg_skeleton"/>
+    </LinearLayout>
+
+    <!-- Suggestion Cards Container -->
+    <LinearLayout
+        android:id="@+id/suggestionsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="14dp">
+
+        <!-- Suggestion Card 1 -->
+        <LinearLayout
+            android:id="@+id/suggestion1Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_suggestion_card"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/suggestion1Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Suggestion 1"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:lineSpacingExtra="2dp"/>
+
+            <TextView
+                android:id="@+id/suggestion1Reason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Reason"
+                android:textColor="#6B7785"
+                android:textSize="10sp"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <!-- Suggestion Card 2 -->
+        <LinearLayout
+            android:id="@+id/suggestion2Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_suggestion_card"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/suggestion2Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Suggestion 2"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:lineSpacingExtra="2dp"/>
+
+            <TextView
+                android:id="@+id/suggestion2Reason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Reason"
+                android:textColor="#6B7785"
+                android:textSize="10sp"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <!-- Suggestion Card 3 -->
+        <LinearLayout
+            android:id="@+id/suggestion3Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_suggestion_card"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/suggestion3Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Suggestion 3"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:lineSpacingExtra="2dp"/>
+
+            <TextView
+                android:id="@+id/suggestion3Reason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Reason"
+                android:textColor="#6B7785"
+                android:textSize="10sp"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnCancelFixAi"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:text="Cancel"
+            android:textColor="#9AA4AF"
+            android:textSize="13sp"
+            android:textAllCaps="false"
+            android:background="@drawable/bg_button_cancel"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnCopyFixAi"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:text="📋 Copy"
+            android:textColor="#00E5C4"
+            android:textSize="13sp"
+            android:textAllCaps="false"
+            android:background="@drawable/bg_button_cancel"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnApplyFixAi"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:text="Replace"
+            android:textColor="#0B0F14"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:background="@drawable/bg_cta_premium"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Premium danger banner with intense gradient -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:type="linear"
+        android:angle="135"
+        android:startColor="#200808"
+        android:endColor="#150505"/>
+    <stroke
+        android:width="1.5dp"
+        android:color="#FF525260"/>
+    <corners android:radius="14dp"/>
+</shape>

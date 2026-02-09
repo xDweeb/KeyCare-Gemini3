@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keyboardRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_keyboard_gradient"
+    android:elevation="8dp">
+
+    <!-- Risk Alert Banner (Hidden by default) - Premium design -->
+    <LinearLayout
+        android:id="@+id/riskBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_banner_warning_premium"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="12dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="8dp"
+        android:elevation="4dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/bannerTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚠ RISK DETECTED"
+                android:textColor="#FFA726"
+                android:textSize="12sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/bannerSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="This message may be perceived as aggressive"
+                android:textColor="#9AA4AF"
+                android:textSize="11sp"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/bannerCtaButton"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:text="Fix with AI"
+            android:textColor="#0B0F14"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:background="@drawable/bg_cta_premium"
+            android:paddingHorizontal="16dp"
+            android:elevation="2dp"/>
+    </LinearLayout>
+
+    <!-- Top Status Bar - Premium design -->
+    <LinearLayout
+        android:id="@+id/statusBar"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/bg_status_bar">
+
+        <!-- Risk Badge Pill - Premium -->
+        <TextView
+            android:id="@+id/riskBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SAFE"
+            android:textColor="#2ECC71"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08"
+            android:background="@drawable/pill_safe_premium"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="5dp"/>
+
+        <!-- Risk Score - Premium -->
+        <TextView
+            android:id="@+id/riskScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.00"
+            android:textSize="11sp"
+            android:textColor="#6B7785"
+            android:fontFamily="monospace"
+            android:layout_marginStart="10dp"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"/>
+
+        <!-- Toolbar buttons - Premium -->
+        <ImageButton
+            android:id="@+id/btnEmoji"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:src="@drawable/ic_emoji"
+            android:background="@drawable/bg_toolbar_btn_premium"
+            android:scaleType="centerInside"
+            android:padding="7dp"
+            android:contentDescription="Emoji"/>
+
+        <ImageButton
+            android:id="@+id/btnClipboard"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:src="@drawable/ic_clipboard"
+            android:background="@drawable/bg_toolbar_btn_premium"
+            android:scaleType="centerInside"
+            android:padding="7dp"
+            android:contentDescription="Clipboard"/>
+
+        <ImageButton
+            android:id="@+id/btnMic"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:src="@drawable/ic_settings"
+            android:background="@drawable/bg_toolbar_btn_premium"
+            android:scaleType="centerInside"
+            android:padding="7dp"
+            android:contentDescription="Settings"/>
+
+        <!-- REMOVED: Duplicate rewriteButton - use bannerCtaButton ("Fix with AI") only -->
+    </LinearLayout>
+
+    <!-- Suggestion Chips Panel (Hidden by default) - Premium -->
+    <LinearLayout
+        android:id="@+id/rewritePanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_panel_premium"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginBottom="6dp"
+        android:elevation="4dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✨ Tap to apply • Long press to copy"
+            android:textSize="10sp"
+            android:textColor="#6B7785"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/suggestionCalm"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="😌 Calm"
+                android:textSize="11sp"
+                android:textColor="#00E5C4"
+                android:background="@drawable/bg_chip_premium"
+                android:padding="12dp"
+                android:gravity="center"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/suggestionFirm"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="💪 Firm"
+                android:textSize="11sp"
+                android:textColor="#00E5C4"
+                android:background="@drawable/bg_chip_premium"
+                android:padding="12dp"
+                android:gravity="center"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/suggestionEducational"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📚 Educate"
+                android:textSize="11sp"
+                android:textColor="#00E5C4"
+                android:background="@drawable/bg_chip_premium"
+                android:padding="12dp"
+                android:gravity="center"
+                android:ellipsize="end"
+                android:maxLines="2"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/closeRewritePanel"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:text="✕ Close"
+            android:textSize="10sp"
+            android:textColor="#6B7785"
+            android:textAllCaps="false"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="18dp"/>
+    </LinearLayout>
+
+    <!-- Clipboard Panel (Hidden by default) - Premium -->
+    <LinearLayout
+        android:id="@+id/clipboardPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_panel_premium"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="12dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginBottom="6dp"
+        android:elevation="4dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📋 Clipboard"
+                android:textSize="13sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+
+            <Button
+                android:id="@+id/closeClipboardPanel"
+                android:layout_width="wrap_content"
+                android:layout_height="26dp"
+                android:text="✕"
+                android:textSize="13sp"
+                android:textColor="#6B7785"
+                android:textAllCaps="false"
+                android:background="@android:color/transparent"
+                android:minWidth="26dp"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/clipboardContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No clipboard content"
+            android:textSize="12sp"
+            android:textColor="#9AA4AF"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:background="@drawable/bg_key_premium"/>
+
+        <Button
+            android:id="@+id/btnPasteClipboard"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:text="Paste"
+            android:textColor="#0B0F14"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:background="@drawable/bg_cta_premium"
+            android:layout_marginTop="10dp"
+            android:elevation="2dp"/>
+    </LinearLayout>
+
+    <!-- Emoji Panel (Hidden by default, built programmatically) - Premium -->
+    <LinearLayout
+        android:id="@+id/emojiPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_panel_premium"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginBottom="6dp"
+        android:elevation="4dp"
+        android:visibility="gone"/>
+
+    <!-- Keyboard Keys Container - Premium -->
+    <LinearLayout
+        android:id="@+id/keyboardContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="4dp"
+        android:paddingBottom="8dp"
+        android:paddingTop="4dp">
+
+        <!-- ========== ALPHA CONTAINER (Letters + Number Row) ========== -->
+        <LinearLayout
+            android:id="@+id/alphaContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <!-- Number Row (always visible in alpha mode): 1 2 3 4 5 6 7 8 9 0 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:orientation="horizontal">
+
+                <Button android:id="@+id/key_1" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="1" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_2" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="2" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_3" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="3" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_4" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="4" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_5" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="5" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_6" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="6" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_7" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="7" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_8" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="8" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_9" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="9" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_0" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="0" android:textSize="16sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+            </LinearLayout>
+
+            <!-- Row 1: Q W E R T Y U I O P -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <Button android:id="@+id/key_q" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="q" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_w" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="w" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_e" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="e" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_r" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="r" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_t" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="t" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_y" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="y" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_u" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="u" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_i" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="i" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_o" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="o" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+                <Button android:id="@+id/key_p" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="p" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            </LinearLayout>
+
+        <!-- Row 2: A S D F G H J K L -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp">
+
+            <Button android:id="@+id/key_a" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="a" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_s" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="s" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_d" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="d" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_f" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="f" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_g" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="g" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_h" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="h" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_j" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="j" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_k" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="k" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_l" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="l" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+        </LinearLayout>
+
+        <!-- Row 3: SHIFT Z X C V B N M (+ extra keys for Arabic) BACKSPACE -->
+        <LinearLayout
+            android:id="@+id/alphaRow3"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <ImageButton android:id="@+id/key_shift" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:src="@drawable/ic_shift" android:scaleType="centerInside" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp" android:contentDescription="Shift"/>
+            <Button android:id="@+id/key_z" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="z" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_x" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="x" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_c" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="c" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_v" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="v" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_b" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="b" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_n" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="n" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_m" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="m" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp"/>
+            <!-- Extra keys for Arabic (hidden in EN/FR) -->
+            <Button android:id="@+id/key_extra1" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp" android:visibility="gone"/>
+            <Button android:id="@+id/key_extra2" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:textAllCaps="false" android:layout_margin="2dp" android:visibility="gone"/>
+            <ImageButton android:id="@+id/key_backspace" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:src="@drawable/ic_backspace" android:scaleType="centerInside" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp" android:contentDescription="Backspace"/>
+        </LinearLayout>
+
+        <!-- Row 4: 123 LANG SPACE . ENTER (Alpha mode) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <Button android:id="@+id/key_numbers" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.2" android:text="123" android:textSize="13sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp"/>
+            <ImageButton android:id="@+id/key_language" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:src="@drawable/ic_language" android:scaleType="centerInside" android:background="@drawable/bg_key_premium" android:layout_margin="2dp" android:contentDescription="Language"/>
+            <Button android:id="@+id/key_comma" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.8" android:text="," android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_space" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="4" android:text="EN • KeyCare" android:textSize="12sp" android:textColor="#9AA4AF" android:background="@drawable/bg_spacebar_premium" android:layout_margin="2dp"/>
+            <Button android:id="@+id/key_period" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.8" android:text="." android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+            <ImageButton android:id="@+id/key_enter" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:src="@drawable/ic_enter" android:scaleType="centerInside" android:background="@drawable/bg_key_action_premium" android:layout_margin="2dp" android:contentDescription="Enter"/>
+        </LinearLayout>
+
+        </LinearLayout>
+        <!-- END alphaContainer -->
+
+        <!-- ========== NUMBERS CONTAINER ========== -->
+        <LinearLayout
+            android:id="@+id/numContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Row 1: 1 2 3 4 5 6 7 8 9 0 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <Button android:id="@+id/num_1" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="1" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_2" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="2" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_3" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="3" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_4" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="4" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_5" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="5" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_6" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="6" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_7" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="7" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_8" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="8" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_9" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="9" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_0" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="0" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+            </LinearLayout>
+
+            <!-- Row 2: @ # $ % & - + ( ) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <Button android:id="@+id/num_at" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="@" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_hash" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="#" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_dollar" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="$" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_percent" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="%" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_amp" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="&amp;" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_minus" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="-" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_plus" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="+" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_lparen" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="(" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_rparen" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text=")" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+            </LinearLayout>
+
+            <!-- Row 3: #+= * " ' : ; ! ? BACKSPACE -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <Button android:id="@+id/key_symbols" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:text="#+=\n" android:textSize="11sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_star" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="*" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_dquote" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="&quot;" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_squote" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="'" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_colon" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text=":" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_semi" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text=";" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_excl" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="!" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_quest" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="?" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <ImageButton android:id="@+id/num_backspace" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:src="@drawable/ic_backspace" android:scaleType="centerInside" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp" android:contentDescription="Backspace"/>
+            </LinearLayout>
+
+            <!-- Row 4: ABC LANG , SPACE . ENTER -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <Button android:id="@+id/key_abc_num" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.2" android:text="ABC" android:textSize="13sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp"/>
+                <ImageButton android:id="@+id/num_language" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:src="@drawable/ic_language" android:scaleType="centerInside" android:background="@drawable/bg_key_premium" android:layout_margin="2dp" android:contentDescription="Language"/>
+                <Button android:id="@+id/num_comma" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.8" android:text="," android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_space" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="4" android:text="123 • KeyCare" android:textSize="12sp" android:textColor="#9AA4AF" android:background="@drawable/bg_spacebar_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/num_period" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.8" android:text="." android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <ImageButton android:id="@+id/num_enter" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:src="@drawable/ic_enter" android:scaleType="centerInside" android:background="@drawable/bg_key_action_premium" android:layout_margin="2dp" android:contentDescription="Enter"/>
+            </LinearLayout>
+
+        </LinearLayout>
+        <!-- END numContainer -->
+
+        <!-- ========== SYMBOLS CONTAINER ========== -->
+        <LinearLayout
+            android:id="@+id/symContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Row 1: ~ ` | • √ π ÷ × ¶ Δ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <Button android:id="@+id/sym_tilde" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="~" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_backtick" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="`" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_pipe" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="|" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_bullet" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="•" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_sqrt" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="√" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_pi" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="π" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_div" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="÷" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_mul" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="×" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_para" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="¶" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_delta" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="Δ" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+            </LinearLayout>
+
+            <!-- Row 2: £ € ¥ ¢ ^ ° = { } -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <Button android:id="@+id/sym_pound" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="£" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_euro" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="€" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_yen" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="¥" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_cent" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="¢" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_caret" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="^" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_degree" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="°" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_eq" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="=" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_lbrace" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="{" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_rbrace" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="}" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+            </LinearLayout>
+
+            <!-- Row 3: 123 \ © ® ™ ✓ [ ] BACKSPACE -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <Button android:id="@+id/key_123_sym" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:text="123" android:textSize="13sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_backslash" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="\\" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_copy" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="©" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_reg" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="®" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_tm" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="™" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_check" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="✓" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_lbrack" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="[" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_rbrack" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="]" android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <ImageButton android:id="@+id/sym_backspace" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:src="@drawable/ic_backspace" android:scaleType="centerInside" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp" android:contentDescription="Backspace"/>
+            </LinearLayout>
+
+            <!-- Row 4: ABC LANG , SPACE . ENTER -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <Button android:id="@+id/key_abc_sym" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.2" android:text="ABC" android:textSize="13sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp"/>
+                <ImageButton android:id="@+id/sym_language" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:src="@drawable/ic_language" android:scaleType="centerInside" android:background="@drawable/bg_key_premium" android:layout_margin="2dp" android:contentDescription="Language"/>
+                <Button android:id="@+id/sym_comma" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.8" android:text="," android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_space" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="4" android:text="#+=• KeyCare" android:textSize="12sp" android:textColor="#9AA4AF" android:background="@drawable/bg_spacebar_premium" android:layout_margin="2dp"/>
+                <Button android:id="@+id/sym_period" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.8" android:text="." android:textSize="18sp" android:textColor="#FFFFFF" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <ImageButton android:id="@+id/sym_enter" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:src="@drawable/ic_enter" android:scaleType="centerInside" android:background="@drawable/bg_key_action_premium" android:layout_margin="2dp" android:contentDescription="Enter"/>
+            </LinearLayout>
+
+        </LinearLayout>
+        <!-- END symContainer -->
+
+    </LinearLayout>
+
+    <!-- Fix with AI Bottom Sheet -->
+    <include layout="@layout/fix_ai_bottom_sheet"/>
+
+</LinearLayout>

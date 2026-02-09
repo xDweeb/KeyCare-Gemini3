@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/resizeOverlayRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#CC0B0F14">
+
+    <!-- Top info area -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp"
+        android:layout_gravity="top">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚙️ Resize Keyboard"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Drag the top handle to adjust keyboard height"
+            android:textSize="13sp"
+            android:textColor="#9AA4AF"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/sizeIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Height: 38%"
+            android:textSize="14sp"
+            android:textColor="#00E5C4"
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel_premium"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="10dp"/>
+    </LinearLayout>
+
+    <!-- Preview keyboard container -->
+    <FrameLayout
+        android:id="@+id/keyboardPreviewContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom">
+
+        <!-- Resize handle (top) -->
+        <LinearLayout
+            android:id="@+id/resizeHandleTop"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:layout_gravity="top"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_resize_handle"
+            android:translationY="-16dp">
+
+            <!-- Handle bar indicator -->
+            <View
+                android:layout_width="60dp"
+                android:layout_height="5dp"
+                android:background="@drawable/bg_handle_bar"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⬍"
+                android:textSize="12sp"
+                android:textColor="#00E5C4"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <!-- Keyboard preview (will be populated) -->
+        <LinearLayout
+            android:id="@+id/keyboardPreview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_keyboard_gradient">
+
+            <!-- Preview text area -->
+            <TextView
+                android:id="@+id/previewText"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Try typing with this size..."
+                android:textSize="14sp"
+                android:textColor="#6B7785"
+                android:gravity="center"
+                android:background="@drawable/bg_status_bar"/>
+
+            <!-- Sample keys row 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="4dp"
+                android:paddingTop="4dp">
+
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+            </LinearLayout>
+
+            <!-- Sample keys row 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="18dp">
+
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+            </LinearLayout>
+
+            <!-- Sample keys row 3 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="4dp">
+
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp"/>
+            </LinearLayout>
+
+            <!-- Sample keys row 4 (bottom) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="4dp"
+                android:paddingBottom="8dp">
+
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.2" android:background="@drawable/bg_key_special_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.8" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="4" android:background="@drawable/bg_spacebar_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.8" android:background="@drawable/bg_key_premium" android:layout_margin="2dp"/>
+                <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5" android:background="@drawable/bg_key_action_premium" android:layout_margin="2dp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Bottom action buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="16dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="280dp">
+
+        <Button
+            android:id="@+id/btnResetSize"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:text="Reset"
+            android:textColor="#9AA4AF"
+            android:textSize="14sp"
+            android:textAllCaps="false"
+            android:background="@drawable/bg_key_special_premium"
+            android:paddingHorizontal="32dp"
+            android:layout_marginEnd="16dp"/>
+
+        <Button
+            android:id="@+id/btnConfirmSize"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:text="✓ Confirm"
+            android:textColor="#0B0F14"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:background="@drawable/bg_cta_premium"
+            android:paddingHorizontal="32dp"/>
+    </LinearLayout>
+
+</FrameLayout>

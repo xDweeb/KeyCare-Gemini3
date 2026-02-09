@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KeyCare Keyboard</string>
+    <string name="ime_name">KeyCare Keyboard</string>
+    <string name="subtype_en_US">English (US)</string>
+    <string name="subtype_keycare_en">KeyCare - English</string>
+    <string name="subtype_keycare_fr">KeyCare - Français</string>
+    <string name="subtype_keycare_ar">KeyCare - العربية</string>
+    
+    <!-- Onboarding -->
+    <string name="welcome_title">Welcome to KEYCARE</string>
+    <string name="welcome_subtitle">Empowering safer digital conversations with real-time AI guidance.</string>
+    
+    <!-- Page 2 - Communicate -->
+    <string name="communicate_title">Communicate with Care</string>
+    <string name="communicate_desc">Detect harmful language before you send it and choose a tone that fits your intent.</string>
+    <string name="risky_label">RISKY</string>
+    <string name="safe_label">SAFE</string>
+    <string name="risky_message">This is a terrible idea and you are wrong about the data.</string>
+    <string name="safe_message">I have some concerns about this approach; can we discuss alternatives for the data?</string>
+    
+    <!-- Page 3 - Enable -->
+    <string name="enable_title">Enable KEYCARE Keyboard</string>
+    <string name="step1_title">Enable in Settings</string>
+    <string name="step1_desc">Open keyboard settings and enable KeyCare</string>
+    <string name="step2_title">Set as Default</string>
+    <string name="step2_desc">Select KeyCare as your default keyboard</string>
+    <string name="step3_title">Ready to Use</string>
+    <string name="step3_desc">Start typing with AI-powered protection</string>
+    
+    <!-- Buttons -->
+    <string name="btn_next">Next</string>
+    <string name="btn_enable">Enable Keyboard</string>
+    <string name="btn_set_default">Set as Default</string>
+    <string name="btn_finish">Get Started</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_test">Test</string>
+    
+    <!-- Chips -->
+    <string name="chip_done">Done</string>
+    <string name="chip_pending">Pending</string>
+    
+    <!-- Status Screen -->
+    <string name="status_ready">Ready to protect your typing</string>
+    <string name="status_setup_needed">Setup required</string>
+    <string name="status_keyboard">Keyboard Status</string>
+    <string name="status_server">Server Configuration</string>
+    <string name="server_hint">http://10.1.12.192:8000</string>
+</resources>

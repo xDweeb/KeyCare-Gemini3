@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Switch track color: ON = teal with alpha, OFF = dark gray -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="#8000E5C4" android:state_checked="true"/>
+    <item android:color="#3A4556"/>
+</selector>
