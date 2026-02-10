@@ -44,11 +44,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+// Gemini 3 Mediation API imports
+import com.keycare.ime.api.MediateRequest;
+import com.keycare.ime.api.MediateResponse;
+import com.keycare.ime.api.MediationApiClient;
+
 public class KeyCareIME extends InputMethodService {
 
     private static final String PREFS_NAME = "keycare_prefs";
     private static final String TAG = "KeyCareIME";
-    private static final long DEBOUNCE_DELAY = 700;
+    private static final long DEBOUNCE_DELAY = 800;  // 800ms debounce for Gemini mediation
     private static final long BACKSPACE_REPEAT_DELAY = 50;
 
     // Keyboard modes
@@ -102,6 +107,12 @@ public class KeyCareIME extends InputMethodService {
     
     // Rewrite API Client - handles API calls with fallback
     private RewriteApiClient rewriteApiClient;
+    
+    // Gemini 3 Mediation API Client
+    private MediationApiClient mediationApiClient;
+    
+    // Current mediation response (for rewrite button)
+    private MediateResponse currentMediationResponse;
     
     // Fix AI Bottom Sheet Controller
     private FixAiBottomSheetController fixAiController;
@@ -195,6 +206,9 @@ public class KeyCareIME extends InputMethodService {
         
         // Initialize Rewrite API Client with fallback engine (uses ApiConfig.BASE_URL internally)
         rewriteApiClient = new RewriteApiClient(suggestionEngine);
+        
+        // Initialize Gemini 3 Mediation API Client
+        mediationApiClient = new MediationApiClient();
         
         // Initialize Fix AI Bottom Sheet Controller
         fixAiController = new FixAiBottomSheetController();
@@ -1226,10 +1240,14 @@ public class KeyCareIME extends InputMethodService {
             }
         }
 
-        // Space
+        // Space - trigger immediate mediation after space
         View spaceKey = keyboardView.findViewById(R.id.key_space);
         if (spaceKey != null) {
-            spaceKey.setOnClickListener(v -> commitChar(" "));
+            spaceKey.setOnClickListener(v -> {
+                commitChar(" ");
+                // Trigger immediate mediation on space (user likely paused to think)
+                triggerImmediateMediation();
+            });
         }
 
         // Backspace with long press support
@@ -1252,10 +1270,13 @@ public class KeyCareIME extends InputMethodService {
             });
         }
 
-        // Enter
+        // Enter - trigger mediation before sending (last chance check)
         View enterKey = keyboardView.findViewById(R.id.key_enter);
         if (enterKey != null) {
             enterKey.setOnClickListener(v -> {
+                // Trigger immediate mediation before sending
+                triggerImmediateMediation();
+                
                 InputConnection ic = getCurrentInputConnection();
                 if (ic != null) {
                     ic.sendKeyEvent(new android.view.KeyEvent(
@@ -1594,6 +1615,10 @@ public class KeyCareIME extends InputMethodService {
 
     // ==================== API CALLS ====================
 
+    /**
+     * Schedule detection with debouncing.
+     * Uses the new Gemini 3 mediation API.
+     */
     private void scheduleDetection() {
         if (debounceRunnable != null) {
             debounceHandler.removeCallbacks(debounceRunnable);
@@ -1601,7 +1626,8 @@ public class KeyCareIME extends InputMethodService {
 
         debounceRunnable = () -> {
             if (currentText.length() > 0) {
-                callDetectAPI(currentText.toString());
+                // Use Gemini 3 mediation API
+                callGeminiMediationAPI(currentText.toString());
             } else {
                 // No text - reset to safe state using controller
                 if (riskUiController != null) {
@@ -1613,6 +1639,102 @@ public class KeyCareIME extends InputMethodService {
         };
 
         debounceHandler.postDelayed(debounceRunnable, DEBOUNCE_DELAY);
+    }
+    
+    /**
+     * Call the Gemini 3 Mediation API.
+     * This is the main integration point with the backend.
+     * 
+     * Uses user preferences for tone and language hint from SettingsManager.
+     * Updates UI with risk level, explanation, and stores rewrite for later use.
+     */
+    private void callGeminiMediationAPI(String text) {
+        if (mediationApiClient == null || text == null || text.trim().isEmpty()) {
+            return;
+        }
+        
+        // Get user preferences
+        String tone = settings != null ? settings.getMediationTone() : "calm";
+        String langHint = settings != null ? settings.getMediationLangHint() : "auto";
+        
+        // Override lang_hint based on current keyboard language if set to auto
+        if ("auto".equals(langHint)) {
+            langHint = getCurrentLangCode();
+            // Map keyboard lang code to API lang code
+            if ("en".equals(langHint) || "fr".equals(langHint) || "ar".equals(langHint)) {
+                // These are valid API codes
+            } else {
+                langHint = "auto"; // Fallback to auto
+            }
+        }
+        
+        // Build request
+        MediateRequest request = new MediateRequest.Builder()
+            .text(text)
+            .tone(tone)
+            .langHint(langHint)
+            .build();
+        
+        Log.d(TAG, "Calling Gemini Mediation API - tone: " + tone + ", lang: " + langHint);
+        
+        // Make async API call
+        mediationApiClient.requestMediation(request, new MediationApiClient.MediationCallback() {
+            @Override
+            public void onSuccess(MediateResponse response) {
+                Log.d(TAG, "Mediation response: " + response.toString());
+                
+                // Store response for rewrite button
+                currentMediationResponse = response;
+                
+                // Update UI based on risk level
+                MediateResponse.RiskLevel riskLevel = response.getRiskLevel();
+                double score = riskLevel.toScore();
+                String label = riskLevel.getDisplayText();
+                
+                // Store current values
+                currentLabel = label;
+                currentScore = score;
+                
+                // Update risk UI using controller
+                if (riskUiController != null) {
+                    // Map RiskLevel to label format expected by controller
+                    String controllerLabel = "SAFE";
+                    if (riskLevel == MediateResponse.RiskLevel.HARMFUL) {
+                        controllerLabel = "OFFENSIVE";
+                    } else if (riskLevel == MediateResponse.RiskLevel.DANGEROUS) {
+                        controllerLabel = "OFFENSIVE"; // Controller uses score to distinguish
+                    }
+                    
+                    // Update with explanation from Gemini
+                    riskUiController.updateRiskWithExplanation(controllerLabel, score, response.getWhy());
+                } else {
+                    updateBadge(label, score);
+                }
+            }
+            
+            @Override
+            public void onError(String error) {
+                Log.e(TAG, "Mediation API error: " + error);
+                // On error, keep current state - don't disrupt user
+                // Optionally fall back to local detection
+                currentMediationResponse = null;
+            }
+        });
+    }
+    
+    /**
+     * Trigger immediate mediation (on space/enter).
+     * Bypasses debouncing for instant feedback.
+     */
+    private void triggerImmediateMediation() {
+        if (currentText.length() > 0) {
+            // Cancel any pending debounced call
+            if (debounceRunnable != null) {
+                debounceHandler.removeCallbacks(debounceRunnable);
+            }
+            // Call immediately
+            callGeminiMediationAPI(currentText.toString());
+        }
     }
 
     private void callDetectAPI(String text) {
@@ -1817,21 +1939,55 @@ public class KeyCareIME extends InputMethodService {
     
     /**
      * Open the Fix AI bottom sheet and fetch suggestions.
+     * Uses Gemini rewrite from mediation response if available.
      */
     private void openFixAiBottomSheet() {
         if (fixAiController == null || currentText.length() == 0) return;
         
-        Log.d(TAG, "Opening Fix AI - using cloud API");
-        
-        // Show loading state
-        fixAiController.showLoading();
+        Log.d(TAG, "Opening Fix AI - using Gemini mediation API");
         
         // Hide the old rewrite panel if visible
         hideRewritePanel();
         
-        // Fetch suggestions with current tone
-        String tone = fixAiController.getCurrentTone().value;
-        fetchFixAiSuggestions(currentText.toString(), tone);
+        // Check if we have a Gemini rewrite from the mediation response
+        if (currentMediationResponse != null && currentMediationResponse.hasRewrite()) {
+            Log.d(TAG, "Using Gemini rewrite: " + currentMediationResponse.getRewrite());
+            
+            // Create suggestions list with Gemini rewrite as primary
+            java.util.List<RewriteApiClient.Suggestion> suggestions = new java.util.ArrayList<>();
+            
+            // Add Gemini rewrite as the main suggestion
+            suggestions.add(new RewriteApiClient.Suggestion(
+                "✨ Gemini Rewrite",
+                currentMediationResponse.getRewrite(),
+                "gemini"
+            ));
+            
+            // Also add explanation as context
+            if (currentMediationResponse.getWhy() != null && !currentMediationResponse.getWhy().isEmpty()) {
+                Log.d(TAG, "Gemini explanation: " + currentMediationResponse.getWhy());
+            }
+            
+            // Show suggestions immediately
+            fixAiController.showSuggestions(suggestions);
+        } else {
+            // No Gemini rewrite available, fetch from API
+            Log.d(TAG, "No Gemini rewrite, fetching from API");
+            fixAiController.showLoading();
+            String tone = fixAiController.getCurrentTone().value;
+            fetchFixAiSuggestions(currentText.toString(), tone);
+        }
+    }
+    
+    /**
+     * Apply the Gemini rewrite directly (bypasses Fix AI sheet).
+     * Use this for quick one-tap rewrite.
+     */
+    private void applyGeminiRewrite() {
+        if (currentMediationResponse != null && currentMediationResponse.hasRewrite()) {
+            String rewrite = currentMediationResponse.getRewrite();
+            applyFixAiSuggestion(rewrite);
+        }
     }
     
     /**

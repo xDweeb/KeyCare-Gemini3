@@ -18,7 +18,7 @@ public final class ApiConfig {
      * IMPORTANT: This is hardcoded and NOT configurable by users.
      * Uses HTTPS for secure communication.
      */
-    public static final String BASE_URL = "https://keycare-api-ff56d99deb82.herokuapp.com";
+    public static final String BASE_URL = "https://keycare-gemini3-api-2587283546dc.herokuapp.com";
     
     /**
      * API Endpoints

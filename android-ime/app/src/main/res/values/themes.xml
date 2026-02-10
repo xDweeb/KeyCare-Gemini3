@@ -21,4 +21,11 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
+    
+    <!-- Dialog theme for settings -->
+    <style name="DialogTheme" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:background">#1E2833</item>
+    </style>
 </resources>

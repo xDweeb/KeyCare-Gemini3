@@ -6,6 +6,8 @@ FastAPI server that provides AI-powered communication mediation using Gemini 3.
 
 import os
 import json
+import httpx
+import re
 from typing import Literal
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -19,8 +21,8 @@ load_dotenv()
 # Configuration
 # ============================================
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3-pro")
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 # ============================================
@@ -87,11 +89,9 @@ class HealthResponse(BaseModel):
 # ============================================
 # Gemini 3 Integration
 # ============================================
-def call_gemini_mediation(text: str, tone: str, lang_hint: str) -> dict:
+async def call_gemini_mediation(text: str, tone: str, lang_hint: str) -> dict:
     """
-    Call Gemini 3 API to perform communication mediation.
-    
-    TODO: Implement actual Gemini 3 API call here.
+    Call Gemini API to perform communication mediation.
     
     Args:
         text: The user's original message to analyze
@@ -102,134 +102,224 @@ def call_gemini_mediation(text: str, tone: str, lang_hint: str) -> dict:
         dict with keys: risk_level, why, rewrite, language
     """
     
-    # =====================================================
-    # TODO: IMPLEMENT GEMINI 3 API CALL
-    # =====================================================
-    # 
-    # Option 1: Using the official Google Generative AI SDK
-    # -----------------------------------------------------
-    # import google.generativeai as genai
-    # 
-    # genai.configure(api_key=GEMINI_API_KEY)
-    # model = genai.GenerativeModel(GEMINI_MODEL)
-    # 
-    # system_prompt = build_system_prompt(tone, lang_hint)
-    # response = model.generate_content(
-    #     [system_prompt, f"Analyze this message: {text}"],
-    #     generation_config={
-    #         "response_mime_type": "application/json",
-    #         "response_schema": {
-    #             "type": "object",
-    #             "properties": {
-    #                 "risk_level": {"type": "string", "enum": ["safe", "harmful", "dangerous"]},
-    #                 "why": {"type": "string"},
-    #                 "rewrite": {"type": "string"},
-    #                 "language": {"type": "string"}
-    #             },
-    #             "required": ["risk_level", "why", "rewrite", "language"]
-    #         }
-    #     }
-    # )
-    # return json.loads(response.text)
-    #
-    # Option 2: Using httpx for REST API calls
-    # -----------------------------------------
-    # import httpx
-    # 
-    # url = f"https://generativelanguage.googleapis.com/v1/models/{GEMINI_MODEL}:generateContent"
-    # headers = {"Content-Type": "application/json"}
-    # params = {"key": GEMINI_API_KEY}
-    # payload = {
-    #     "contents": [{"parts": [{"text": build_prompt(text, tone, lang_hint)}]}],
-    #     "generationConfig": {"responseMimeType": "application/json"}
-    # }
-    # 
-    # response = httpx.post(url, json=payload, headers=headers, params=params)
-    # response.raise_for_status()
-    # return parse_gemini_response(response.json())
-    #
-    # =====================================================
+    # If no API key, use fallback heuristics
+    if not GEMINI_API_KEY:
+        return fallback_mediation(text, tone, lang_hint)
     
-    # PLACEHOLDER: Return mock response for development/testing
-    # Remove this once Gemini 3 API is integrated
+    # Build the prompt
+    system_prompt = build_system_prompt(tone, lang_hint)
+    user_message = f'Analyze this message: "{text}"'
     
-    # Simple heuristic for demo purposes
-    harmful_words = ["idiot", "stupid", "hate", "kill", "die", "ugly", "dumb"]
-    dangerous_words = ["threat", "hurt", "attack", "destroy"]
+    # Gemini API endpoint
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+    
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": system_prompt},
+                    {"text": user_message}
+                ]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.7,
+            "topP": 0.9,
+            "maxOutputTokens": 500,
+            "responseMimeType": "application/json"
+        },
+        "safetySettings": [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+        ]
+    }
+    
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.post(
+                url,
+                json=payload,
+                params={"key": GEMINI_API_KEY},
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if response.status_code != 200:
+                if DEBUG:
+                    print(f"Gemini API error: {response.status_code} - {response.text}")
+                return fallback_mediation(text, tone, lang_hint)
+            
+            data = response.json()
+            
+            # Extract text from Gemini response
+            candidates = data.get("candidates", [])
+            if not candidates:
+                return fallback_mediation(text, tone, lang_hint)
+            
+            content = candidates[0].get("content", {})
+            parts = content.get("parts", [])
+            if not parts:
+                return fallback_mediation(text, tone, lang_hint)
+            
+            response_text = parts[0].get("text", "")
+            
+            # Parse JSON response from Gemini
+            result = parse_gemini_json(response_text)
+            
+            if result:
+                return result
+            else:
+                return fallback_mediation(text, tone, lang_hint)
+                
+    except httpx.TimeoutException:
+        if DEBUG:
+            print("Gemini API timeout")
+        return fallback_mediation(text, tone, lang_hint)
+    except Exception as e:
+        if DEBUG:
+            print(f"Gemini API exception: {e}")
+        return fallback_mediation(text, tone, lang_hint)
+
+
+def parse_gemini_json(response_text: str) -> dict | None:
+    """
+    Parse JSON from Gemini response.
+    Handles cases where response might be wrapped in markdown code blocks.
+    """
+    try:
+        # Try direct JSON parse first
+        return json.loads(response_text)
+    except json.JSONDecodeError:
+        pass
+    
+    # Try to extract JSON from markdown code block
+    json_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', response_text)
+    if json_match:
+        try:
+            return json.loads(json_match.group(1))
+        except json.JSONDecodeError:
+            pass
+    
+    # Try to find JSON object in text
+    json_match = re.search(r'\{[\s\S]*\}', response_text)
+    if json_match:
+        try:
+            return json.loads(json_match.group(0))
+        except json.JSONDecodeError:
+            pass
+    
+    return None
+
+
+def fallback_mediation(text: str, tone: str, lang_hint: str) -> dict:
+    """
+    Fallback heuristic-based mediation when Gemini API is unavailable.
+    """
+    # Harmful word patterns for multiple languages
+    harmful_patterns = {
+        "en": ["idiot", "stupid", "hate", "ugly", "dumb", "shut up", "loser"],
+        "fr": ["idiot", "stupide", "déteste", "nul", "tais-toi", "con"],
+        "ar": ["غبي", "أحمق", "أكره", "اخرس"],
+        "darija": ["hmar", "7mar", "zebi", "m3a9"]
+    }
+    
+    dangerous_patterns = {
+        "en": ["kill", "die", "threat", "hurt", "attack", "destroy"],
+        "fr": ["tuer", "mort", "menace", "blesser", "attaquer"],
+        "ar": ["قتل", "موت", "تهديد"],
+        "darija": ["n9tel", "mout"]
+    }
     
     text_lower = text.lower()
     
-    if any(word in text_lower for word in dangerous_words):
-        risk_level = "dangerous"
-        why = "Message contains potentially threatening language."
-        rewrite = "I'm feeling very frustrated and need to express my concerns."
-    elif any(word in text_lower for word in harmful_words):
-        risk_level = "harmful"
-        why = "Message contains language that could be hurtful or escalate conflict."
-        rewrite = f"I'd like to express my feelings in a more {tone} way about this situation."
-    else:
-        risk_level = "safe"
-        why = "Message appears respectful and constructive."
-        rewrite = text  # No rewrite needed
+    # Check for dangerous content
+    for patterns in dangerous_patterns.values():
+        if any(word in text_lower for word in patterns):
+            return {
+                "risk_level": "dangerous",
+                "why": "Message contains potentially threatening language.",
+                "rewrite": "I'm feeling very frustrated and need to express my concerns respectfully.",
+                "language": detect_language(text, lang_hint)
+            }
     
-    # Detect language (placeholder logic)
-    detected_lang = lang_hint if lang_hint != "auto" else "en"
-    if any(ord(c) > 1536 and ord(c) < 1791 for c in text):  # Arabic Unicode range
-        detected_lang = "ar"
-    elif any(c in "éèêëàâäùûüôöîïç" for c in text.lower()):
-        detected_lang = "fr"
+    # Check for harmful content
+    for patterns in harmful_patterns.values():
+        if any(word in text_lower for word in patterns):
+            return {
+                "risk_level": "harmful",
+                "why": "Message contains language that could hurt someone.",
+                "rewrite": f"I'd like to express my feelings about this situation.",
+                "language": detect_language(text, lang_hint)
+            }
     
+    # Safe message
     return {
-        "risk_level": risk_level,
-        "why": why,
-        "rewrite": rewrite,
-        "language": detected_lang
+        "risk_level": "safe",
+        "why": "Message appears respectful and constructive.",
+        "rewrite": text,
+        "language": detect_language(text, lang_hint)
     }
+
+
+def detect_language(text: str, lang_hint: str) -> str:
+    """Detect language from text or use hint."""
+    if lang_hint != "auto":
+        return lang_hint
+    
+    # Arabic Unicode range detection
+    if any(ord(c) > 1536 and ord(c) < 1791 for c in text):
+        # Check for Darija patterns (Latin transliteration mixed or specific words)
+        darija_markers = ["hna", "dyal", "wach", "kifach", "3", "7", "9"]
+        if any(marker in text.lower() for marker in darija_markers):
+            return "darija"
+        return "ar"
+    
+    # French accented characters
+    if any(c in "éèêëàâäùûüôöîïç" for c in text.lower()):
+        return "fr"
+    
+    return "en"
 
 
 def build_system_prompt(tone: str, lang_hint: str) -> str:
     """
     Build the system prompt for Gemini 3.
     
-    This prompt instructs Gemini to act as a communication mediator.
+    This is the official KeyCare mediation prompt that instructs Gemini
+    to analyze messages and provide respectful rewrites.
     """
-    lang_instruction = ""
-    if lang_hint != "auto":
-        lang_map = {
-            "en": "English",
-            "fr": "French",
-            "ar": "Arabic (Modern Standard Arabic)",
-            "darija": "Moroccan Arabic (Darija)"
-        }
-        lang_instruction = f"The user's language is likely {lang_map.get(lang_hint, lang_hint)}. "
-    
-    return f"""You are a communication mediator AI. Your job is to analyze messages and help users communicate more respectfully.
+    return f"""You are KeyCare, a real-time communication mediation assistant inside an Android keyboard.
 
-{lang_instruction}
+Task:
+Given a user message, detect communication risk and propose a respectful rewrite that preserves intent.
 
-For each message, you must:
-1. Assess the risk level:
-   - "safe": Message is respectful and constructive
-   - "harmful": Message contains insults, passive aggression, or could hurt someone
-   - "dangerous": Message contains threats, extreme hostility, or could cause harm
-
-2. Provide a brief 1-line explanation of your assessment
-
-3. Rewrite the message in a {tone} tone that:
-   - Preserves the user's core intent
-   - Removes harmful language
-   - Is constructive and respectful
-   - Maintains the same language as the original
-
-4. Detect the language used
-
-Respond ONLY with valid JSON in this exact format:
+Return ONLY valid JSON (no markdown, no extra text). Use this exact schema:
 {{
-    "risk_level": "safe|harmful|dangerous",
-    "why": "Brief explanation",
-    "rewrite": "The rewritten message",
-    "language": "en|fr|ar|darija"
-}}"""
+  "risk_level": "safe" | "harmful" | "dangerous",
+  "why": "one short sentence explaining the risk",
+  "rewrite": "rewritten message in the SAME language as the input",
+  "language": "en" | "fr" | "ar" | "darija"
+}}
+
+Rules:
+- The user stays in control. Do not refuse unless the content is clearly dangerous.
+- If the message is "safe", still return a slightly improved rewrite (optional), but keep it close to original.
+- If the input is Arabic dialect (Darija), set language="darija" and rewrite in Darija (Arabic script or Latin mix allowed).
+- Keep the rewrite concise and natural. No lecturing.
+- If the message includes direct threats or explicit violent intent, set risk_level="dangerous" and rewrite to a non-threatening de-escalation statement.
+- Do not include personal data. Do not add new facts.
+- Output must be strictly valid JSON.
+
+Inputs:
+text: "{{{{TEXT}}}}"
+tone: "{tone}"   (one of: calm, friendly, professional)
+lang_hint: "{lang_hint}" (auto, en, fr, ar, darija)
+
+Tone control:
+- calm: de-escalate and soften
+- friendly: warm and polite
+- professional: formal and respectful"""
 
 
 # ============================================
@@ -264,10 +354,10 @@ async def mediate_message(request: MediationRequest):
         # In production, you might want to return an error
         # For hackathon demo, we'll use the placeholder response
         if DEBUG:
-            print("Warning: GEMINI_API_KEY not configured, using placeholder response")
+            print("Warning: GEMINI_API_KEY not configured, using fallback heuristics")
     
     try:
-        result = call_gemini_mediation(
+        result = await call_gemini_mediation(
             text=request.text,
             tone=request.tone,
             lang_hint=request.lang_hint

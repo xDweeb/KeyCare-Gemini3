@@ -18,6 +18,14 @@
 -keep class org.json.** { *; }
 -dontwarn org.json.**
 
+# OkHttp rules
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn javax.annotation.**
+-keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
+-keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
+
 # Keep Android components
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.BroadcastReceiver

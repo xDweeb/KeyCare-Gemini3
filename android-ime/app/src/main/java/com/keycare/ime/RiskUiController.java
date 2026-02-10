@@ -140,6 +140,75 @@ public class RiskUiController {
         cancelPendingUpdate();
         applyRiskUpdate(label, score);
     }
+    
+    /**
+     * Update risk state with custom "why" explanation from Gemini.
+     * Use this for Gemini 3 mediation responses.
+     * 
+     * @param label The risk label (SAFE, HARMFUL, DANGEROUS)
+     * @param score The risk score (0.0 - 1.0)
+     * @param why The explanation from Gemini
+     */
+    public void updateRiskWithExplanation(String label, double score, String why) {
+        cancelPendingUpdate();
+        applyRiskUpdateWithWhy(label, score, why);
+    }
+    
+    /**
+     * Update banner to show mediation result from Gemini.
+     * 
+     * @param riskLevel "safe", "harmful", or "dangerous"
+     * @param why The explanation text
+     * @param hasRewrite Whether a rewrite suggestion is available
+     */
+    public void showMediationResult(String riskLevel, String why, boolean hasRewrite) {
+        cancelPendingUpdate();
+        
+        RiskLevel level;
+        double score;
+        switch (riskLevel.toLowerCase()) {
+            case "dangerous":
+                level = RiskLevel.DANGER;
+                score = 0.9;
+                break;
+            case "harmful":
+                level = RiskLevel.RISKY;
+                score = 0.6;
+                break;
+            default:
+                level = RiskLevel.SAFE;
+                score = 0.1;
+                break;
+        }
+        
+        // Update score display
+        if (riskScore != null) {
+            riskScore.setText(String.format("%.2f", score));
+        }
+        
+        // Update badge
+        updateBadge(level);
+        
+        if (level == RiskLevel.SAFE) {
+            if (isBannerVisible) {
+                animateHideBanner();
+            }
+        } else {
+            // Show banner with custom "why" explanation
+            updateBannerContentWithWhy(level, why);
+            if (!isBannerVisible) {
+                animateShowBanner();
+            }
+            
+            // Update CTA button based on whether rewrite is available
+            if (bannerCtaButton != null) {
+                bannerCtaButton.setEnabled(hasRewrite);
+                bannerCtaButton.setText(hasRewrite ? "Rewrite" : "Fix with AI");
+            }
+        }
+        
+        currentRiskLevel = level;
+    }
 
     /**
      * Force hide the banner (e.g., when text is cleared or suggestion applied)
@@ -293,6 +362,77 @@ public class RiskUiController {
                 bannerSubtitle.setText("This message may be perceived as aggressive");
             }
         }
+    }
+    
+    /**
+     * Update banner content with custom "why" explanation from Gemini.
+     */
+    private void updateBannerContentWithWhy(RiskLevel level, String why) {
+        if (riskBanner == null) return;
+
+        if (level == RiskLevel.DANGER) {
+            riskBanner.setBackgroundResource(bgBannerDanger);
+            if (bannerTitle != null) {
+                bannerTitle.setText("🚨 DANGEROUS");
+                bannerTitle.setTextColor(0xFFFF5252);
+            }
+        } else {
+            riskBanner.setBackgroundResource(bgBannerWarning);
+            if (bannerTitle != null) {
+                bannerTitle.setText("⚠ HARMFUL");
+                bannerTitle.setTextColor(0xFFFFA726);
+            }
+        }
+        
+        // Show the "why" explanation from Gemini
+        if (bannerSubtitle != null) {
+            if (why != null && !why.isEmpty()) {
+                bannerSubtitle.setText(why);
+            } else {
+                bannerSubtitle.setText(level == RiskLevel.DANGER 
+                    ? "This message may cause harm"
+                    : "This message could be improved");
+            }
+        }
+    }
+    
+    /**
+     * Apply risk update with custom "why" explanation.
+     */
+    private void applyRiskUpdateWithWhy(String label, double score, String why) {
+        RiskLevel newLevel;
+        if ("safe".equalsIgnoreCase(label)) {
+            newLevel = RiskLevel.SAFE;
+        } else if ("dangerous".equalsIgnoreCase(label)) {
+            newLevel = RiskLevel.DANGER;
+        } else {
+            newLevel = RiskLevel.RISKY;
+        }
+
+        if (riskScore != null) {
+            riskScore.setText(String.format("%.2f", score));
+        }
+
+        updateBadge(newLevel);
+
+        if (newLevel == RiskLevel.SAFE) {
+            if (isBannerVisible) {
+                animateHideBanner();
+            }
+            if (rewriteButton != null) {
+                rewriteButton.setVisibility(View.GONE);
+            }
+        } else {
+            updateBannerContentWithWhy(newLevel, why);
+            if (!isBannerVisible) {
+                animateShowBanner();
+            }
+            if (rewriteButton != null) {
+                rewriteButton.setVisibility(View.VISIBLE);
+            }
+        }
+
+        currentRiskLevel = newLevel;
     }
 
     private void animateShowBanner() {

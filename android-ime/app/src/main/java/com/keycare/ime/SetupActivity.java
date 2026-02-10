@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 
 public class SetupActivity extends AppCompatActivity {
 
-    private static final String BASE_URL = "http://192.168.1.10:8000";
+    private static final String BASE_URL = "https://keycare-gemini3-api-2587283546dc.herokuapp.com";
 
     private Button btnEnableKeyboard;
     private Button btnSetDefault;

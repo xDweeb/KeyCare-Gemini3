@@ -9,11 +9,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Settings Activity - Clean user-facing settings.
- * NO technical/developer options exposed.
+ * Includes Gemini mediation preferences (tone, language).
  */
 public class SettingsActivity extends AppCompatActivity {
 
@@ -31,6 +32,10 @@ public class SettingsActivity extends AppCompatActivity {
     // AI Status views
     private View aiStatusDot;
     private TextView aiStatusText;
+    
+    // Mediation preference views
+    private TextView btnTone;
+    private TextView btnLangHint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +78,10 @@ public class SettingsActivity extends AppCompatActivity {
         // AI Status views
         aiStatusDot = findViewById(R.id.aiStatusDot);
         aiStatusText = findViewById(R.id.aiStatusText);
+        
+        // Mediation preference views
+        btnTone = findViewById(R.id.btnTone);
+        btnLangHint = findViewById(R.id.btnLangHint);
     }
 
     private void loadSettings() {
@@ -80,6 +89,22 @@ public class SettingsActivity extends AppCompatActivity {
         switchSound.setChecked(settings.isSoundEnabled());
         switchVibration.setChecked(settings.isVibrationEnabled());
         switchSafetyBar.setChecked(settings.isSafetyBarAlways());
+        
+        // Load mediation preferences
+        updateToneButton();
+        updateLangHintButton();
+    }
+    
+    private void updateToneButton() {
+        if (btnTone != null) {
+            btnTone.setText(settings.getToneDisplayName() + " ▼");
+        }
+    }
+    
+    private void updateLangHintButton() {
+        if (btnLangHint != null) {
+            btnLangHint.setText(settings.getLangHintDisplayName() + " ▼");
+        }
     }
 
     private void updateSizeLabel() {
@@ -113,6 +138,66 @@ public class SettingsActivity extends AppCompatActivity {
         switchSafetyBar.setOnCheckedChangeListener((buttonView, isChecked) -> {
             settings.setSafetyBarAlways(isChecked);
         });
+        
+        // Tone selection
+        if (btnTone != null) {
+            btnTone.setOnClickListener(v -> showToneSelector());
+        }
+        
+        // Language hint selection
+        if (btnLangHint != null) {
+            btnLangHint.setOnClickListener(v -> showLangHintSelector());
+        }
+    }
+    
+    private void showToneSelector() {
+        String[] tones = {"Calm", "Friendly", "Professional"};
+        String[] toneValues = {"calm", "friendly", "professional"};
+        
+        int currentIndex = 0;
+        String currentTone = settings.getMediationTone();
+        for (int i = 0; i < toneValues.length; i++) {
+            if (toneValues[i].equals(currentTone)) {
+                currentIndex = i;
+                break;
+            }
+        }
+        
+        new AlertDialog.Builder(this, R.style.DialogTheme)
+            .setTitle("Select Rewrite Tone")
+            .setSingleChoiceItems(tones, currentIndex, (dialog, which) -> {
+                settings.setMediationTone(toneValues[which]);
+                updateToneButton();
+                Toast.makeText(this, "Tone: " + tones[which], Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+    
+    private void showLangHintSelector() {
+        String[] langs = {"Auto-detect", "English", "French", "Arabic", "Darija"};
+        String[] langValues = {"auto", "en", "fr", "ar", "darija"};
+        
+        int currentIndex = 0;
+        String currentLang = settings.getMediationLangHint();
+        for (int i = 0; i < langValues.length; i++) {
+            if (langValues[i].equals(currentLang)) {
+                currentIndex = i;
+                break;
+            }
+        }
+        
+        new AlertDialog.Builder(this, R.style.DialogTheme)
+            .setTitle("Select Language Hint")
+            .setSingleChoiceItems(langs, currentIndex, (dialog, which) -> {
+                settings.setMediationLangHint(langValues[which]);
+                updateLangHintButton();
+                Toast.makeText(this, "Language: " + langs[which], Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
     }
     
     private void setupAiStatusMonitor() {

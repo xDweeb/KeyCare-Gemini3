@@ -69,10 +69,18 @@ public class RewriteApiClient {
     public static class Suggestion {
         public final String text;
         public final String reason;
+        public final String source;
 
         public Suggestion(String text, String reason) {
             this.text = text;
             this.reason = reason;
+            this.source = "local";
+        }
+
+        public Suggestion(String text, String reason, String source) {
+            this.text = text;
+            this.reason = reason;
+            this.source = source;
         }
     }
 

@@ -18,6 +18,10 @@ public class SettingsManager {
     public static final String PREF_SAFETY_BAR_ALWAYS = "safety_bar_always";
     public static final String PREF_KEYBOARD_ENABLED = "keyboard_enabled";
     public static final String PREF_ONBOARDING_COMPLETE = "onboarding_complete";
+    
+    // Gemini Mediation preferences
+    public static final String PREF_MEDIATION_TONE = "mediation_tone";
+    public static final String PREF_MEDIATION_LANG_HINT = "mediation_lang_hint";
 
     // Default values
     public static final float DEFAULT_KEYBOARD_SCALE = 1.0f;
@@ -27,6 +31,10 @@ public class SettingsManager {
     public static final boolean DEFAULT_SOUND_ENABLED = true;
     public static final boolean DEFAULT_VIBRATION_ENABLED = true;
     public static final boolean DEFAULT_SAFETY_BAR_ALWAYS = false;
+    
+    // Mediation defaults
+    public static final String DEFAULT_MEDIATION_TONE = "calm";
+    public static final String DEFAULT_MEDIATION_LANG_HINT = "auto";
 
     private final SharedPreferences prefs;
 
@@ -122,6 +130,70 @@ public class SettingsManager {
             .putBoolean(PREF_SOUND_ENABLED, DEFAULT_SOUND_ENABLED)
             .putBoolean(PREF_VIBRATION_ENABLED, DEFAULT_VIBRATION_ENABLED)
             .putBoolean(PREF_SAFETY_BAR_ALWAYS, DEFAULT_SAFETY_BAR_ALWAYS)
+            .putString(PREF_MEDIATION_TONE, DEFAULT_MEDIATION_TONE)
+            .putString(PREF_MEDIATION_LANG_HINT, DEFAULT_MEDIATION_LANG_HINT)
             .apply();
+    }
+    
+    // ==================== GEMINI MEDIATION ====================
+    
+    /**
+     * Get the preferred tone for message rewrites.
+     * @return "calm", "friendly", or "professional"
+     */
+    public String getMediationTone() {
+        return prefs.getString(PREF_MEDIATION_TONE, DEFAULT_MEDIATION_TONE);
+    }
+    
+    /**
+     * Set the preferred tone for message rewrites.
+     * @param tone "calm", "friendly", or "professional"
+     */
+    public void setMediationTone(String tone) {
+        prefs.edit().putString(PREF_MEDIATION_TONE, tone).apply();
+    }
+    
+    /**
+     * Get the language hint for mediation.
+     * @return "auto", "en", "fr", "ar", or "darija"
+     */
+    public String getMediationLangHint() {
+        return prefs.getString(PREF_MEDIATION_LANG_HINT, DEFAULT_MEDIATION_LANG_HINT);
+    }
+    
+    /**
+     * Set the language hint for mediation.
+     * @param langHint "auto", "en", "fr", "ar", or "darija"
+     */
+    public void setMediationLangHint(String langHint) {
+        prefs.edit().putString(PREF_MEDIATION_LANG_HINT, langHint).apply();
+    }
+    
+    /**
+     * Get tone display name for UI.
+     */
+    public String getToneDisplayName() {
+        String tone = getMediationTone();
+        switch (tone) {
+            case "friendly": return "Friendly";
+            case "professional": return "Professional";
+            case "calm":
+            default: return "Calm";
+        }
+    }
+    
+    /**
+     * Get language hint display name for UI.
+     */
+    public String getLangHintDisplayName() {
+        String langHint = getMediationLangHint();
+        switch (langHint) {
+            case "en": return "English";
+            case "fr": return "French";
+            case "ar": return "Arabic";
+            case "darija": return "Darija";
+            case "auto":
+            default: return "Auto-detect";
+        }
     }
 }
