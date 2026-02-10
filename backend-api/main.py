@@ -9,6 +9,8 @@ import json
 import httpx
 import re
 import logging
+import hashlib
+import time
 from typing import Literal
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -28,10 +30,47 @@ logger = logging.getLogger("keycare")
 # Configuration
 # ============================================
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3")  # Default to Gemini 3 for hackathon
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
-VERSION = "1.3.0"
+VERSION = "1.4.0"
+
+# ============================================
+# In-Memory TTL Cache (5 minutes)
+# ============================================
+CACHE_TTL_SECONDS = 300  # 5 minutes
+_response_cache: dict[str, tuple[dict, float]] = {}  # key -> (response, timestamp)
+
+
+def _cache_key(text: str, tone: str, lang_hint: str) -> str:
+    """Generate SHA256 cache key from request parameters."""
+    raw = f"{text}|{tone}|{lang_hint}"
+    return hashlib.sha256(raw.encode()).hexdigest()
+
+
+def _get_cached(key: str) -> dict | None:
+    """Get cached response if not expired."""
+    if key in _response_cache:
+        response, timestamp = _response_cache[key]
+        if time.time() - timestamp < CACHE_TTL_SECONDS:
+            logger.info(f"[CACHE] Hit for key={key[:16]}...")
+            return response
+        else:
+            # Expired - remove it
+            del _response_cache[key]
+            logger.info(f"[CACHE] Expired key={key[:16]}...")
+    return None
+
+
+def _set_cached(key: str, response: dict) -> None:
+    """Store response in cache with current timestamp."""
+    _response_cache[key] = (response, time.time())
+    logger.info(f"[CACHE] Stored key={key[:16]}... (cache size: {len(_response_cache)})")
+    
+    # Simple cache cleanup - remove oldest if too large (max 1000 entries)
+    if len(_response_cache) > 1000:
+        oldest_key = min(_response_cache.keys(), key=lambda k: _response_cache[k][1])
+        del _response_cache[oldest_key]
 
 # ============================================
 # Profanity Lists - ONLY for rewrite validation (NOT for risk detection!)
@@ -104,6 +143,10 @@ class MediationResponse(BaseModel):
         ..., 
         description="Detected or specified language of the message"
     )
+    gemini_used: bool = Field(
+        default=True,
+        description="Whether Gemini API was actually called (false = cache hit or fallback)"
+    )
 
 
 class HealthResponse(BaseModel):
@@ -111,6 +154,8 @@ class HealthResponse(BaseModel):
     status: str
     version: str
     gemini_configured: bool
+    gemini_model: str
+    cache_size: int
 
 
 # ============================================
@@ -229,35 +274,58 @@ async def call_gemini_mediation(text: str, tone: str, lang_hint: str) -> dict:
         lang_hint: Language hint (auto/en/fr/ar/darija)
     
     Returns:
-        dict with keys: risk_level, why, rewrite, language
+        dict with keys: risk_level, why, rewrite, language, gemini_used
     """
     logger.info(f"[MEDIATE] Input: text_len={len(text)}, tone={tone}, lang_hint={lang_hint}")
     
     # Detect language for rewrite if auto
     detected_lang = detect_language(text, lang_hint) if lang_hint == "auto" else lang_hint
     
+    # THROTTLING: Skip Gemini for very short messages (< 12 chars)
+    if len(text.strip()) < 12:
+        logger.info(f"[MEDIATE] Short message ({len(text)} chars), skipping Gemini")
+        return {
+            "risk_level": "safe",
+            "why": "Short message - appears benign.",
+            "rewrite": text.strip(),
+            "language": detected_lang,
+            "gemini_used": False
+        }
+    
+    # CACHE: Check if we have a cached response
+    cache_key = _cache_key(text, tone, lang_hint)
+    cached = _get_cached(cache_key)
+    if cached:
+        cached["gemini_used"] = False  # Cache hit, not a fresh Gemini call
+        return cached
+    
     # If no API key, use fallback (but this should not happen in production)
     if not GEMINI_API_KEY:
         logger.warning("[MEDIATE] No API key, using fallback")
         result = fallback_mediation(text, tone, detected_lang)
+        result["gemini_used"] = False
         return validate_response_structure(result, text, tone, detected_lang)
     
     # Call Gemini - it decides risk_level based on reasoning
     result = await _call_gemini_once(text, tone, lang_hint, detected_lang)
+    gemini_used = result is not None
+    
     if result is None:
         logger.warning("[MEDIATE] Gemini returned None, using fallback")
         result = fallback_mediation(text, tone, detected_lang)
     
     # Validate response structure (normalize risk_level, ensure all fields present)
     result = validate_response_structure(result, text, tone, detected_lang)
+    result["gemini_used"] = gemini_used
     
-    logger.info(f"[MEDIATE] Gemini decision: risk={result['risk_level']}, lang={result['language']}")
+    logger.info(f"[MEDIATE] Gemini decision: risk={result['risk_level']}, lang={result['language']}, gemini_used={gemini_used}")
     
     # POST-VALIDATION: Check if rewrite contains profanity (guardrail only)
     if rewrite_contains_profanity(result["rewrite"]):
         logger.warning(f"[MEDIATE] Rewrite contains profanity, regenerating...")
         result = await _regenerate_clean_rewrite(text, tone, result["language"])
         result = validate_response_structure(result, text, tone, detected_lang)
+        result["gemini_used"] = True  # We called Gemini again
         
         # If still contains profanity, force generic rewrite
         if rewrite_contains_profanity(result["rewrite"]):
@@ -265,6 +333,10 @@ async def call_gemini_mediation(text: str, tone: str, lang_hint: str) -> dict:
             result["rewrite"] = get_generic_rewrite(tone, result["language"])
     
     logger.info(f"[MEDIATE] Final response: risk={result['risk_level']}, lang={result['language']}, rewrite_preview={result['rewrite'][:50]}...")
+    
+    # Cache the successful response
+    if gemini_used:
+        _set_cached(cache_key, result.copy())
     
     return result
 
@@ -275,6 +347,8 @@ async def _call_gemini_once(text: str, tone: str, lang_hint: str, detected_lang:
     user_message = f'Analyze this message: "{text}"'
     
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+    
+    logger.info(f"[GEMINI] Using model: {GEMINI_MODEL}")
     
     payload = {
         "contents": [
@@ -299,8 +373,8 @@ async def _call_gemini_once(text: str, tone: str, lang_hint: str, detected_lang:
         ]
     }
     
-    # Retry logic for rate limits
-    max_retries = 3
+    # Retry logic: 1 retry only with exponential backoff (to keep latency low)
+    max_retries = 2  # Initial attempt + 1 retry
     for attempt in range(max_retries):
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
@@ -311,16 +385,22 @@ async def _call_gemini_once(text: str, tone: str, lang_hint: str, detected_lang:
                     headers={"Content-Type": "application/json"}
                 )
                 
+                logger.info(f"[GEMINI] Response status: {response.status_code}")
+                
                 if response.status_code == 429:
-                    # Rate limited - wait and retry
-                    wait_time = (attempt + 1) * 2  # 2s, 4s, 6s
-                    logger.warning(f"[GEMINI] Rate limited (429), waiting {wait_time}s before retry {attempt + 1}/{max_retries}")
-                    import asyncio
-                    await asyncio.sleep(wait_time)
-                    continue
+                    # Rate limited - exponential backoff: 1s, then 2s
+                    if attempt < max_retries - 1:
+                        wait_time = 2 ** attempt  # 1s, 2s
+                        logger.warning(f"[GEMINI] Rate limited (429), waiting {wait_time}s before retry {attempt + 1}/{max_retries - 1}")
+                        import asyncio
+                        await asyncio.sleep(wait_time)
+                        continue
+                    else:
+                        logger.error(f"[GEMINI] Rate limited (429) after {max_retries} attempts")
+                        return None
                 
                 if response.status_code != 200:
-                    logger.error(f"[GEMINI] API error: {response.status_code} - {response.text[:200]}")
+                    logger.error(f"[GEMINI] API error: {response.status_code} - {response.text[:500]}")
                     return None
                 
                 data = response.json()
@@ -583,7 +663,9 @@ async def health_check():
     return HealthResponse(
         status="healthy",
         version=VERSION,
-        gemini_configured=bool(GEMINI_API_KEY)
+        gemini_configured=bool(GEMINI_API_KEY),
+        gemini_model=GEMINI_MODEL,
+        cache_size=len(_response_cache)
     )
 
 
@@ -609,7 +691,8 @@ async def mediate_message(request: MediationRequest):
             risk_level=result["risk_level"],
             why=result["why"],
             rewrite=result["rewrite"],
-            language=result["language"]
+            language=result["language"],
+            gemini_used=result.get("gemini_used", True)
         )
     
     except Exception as e:
@@ -619,7 +702,8 @@ async def mediate_message(request: MediationRequest):
             risk_level="harmful",
             why="Unable to process message.",
             rewrite="I'd like to express my thoughts respectfully.",
-            language="en"
+            language="en",
+            gemini_used=False
         )
 
 
