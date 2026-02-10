@@ -24,8 +24,9 @@ public final class ApiConfig {
      * API Endpoints
      */
     public static final String ENDPOINT_HEALTH = "/health";
-    public static final String ENDPOINT_DETECT = "/analyze";
-    public static final String ENDPOINT_REWRITE = "/rewrite";
+    public static final String ENDPOINT_MEDIATE = "/mediate";
+    public static final String ENDPOINT_DETECT = "/mediate";  // Legacy alias
+    public static final String ENDPOINT_REWRITE = "/mediate"; // Legacy alias
     
     /**
      * Timeouts (milliseconds)

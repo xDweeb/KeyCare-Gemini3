@@ -36,15 +36,18 @@ public class MediateResponse {
         }
         
         public static RiskLevel fromString(String value) {
-            if (value == null) return SAFE;
-            switch (value.toLowerCase()) {
+            if (value == null || value.trim().isEmpty()) return HARMFUL; // Default to harmful, never safe
+            String normalized = value.trim().toLowerCase();
+            switch (normalized) {
+                case "safe":
+                    return SAFE;
                 case "harmful":
                     return HARMFUL;
                 case "dangerous":
                     return DANGEROUS;
-                case "safe":
                 default:
-                    return SAFE;
+                    // Unknown value -> treat as harmful (never default to safe)
+                    return HARMFUL;
             }
         }
         
@@ -85,8 +88,9 @@ public class MediateResponse {
     private String language;
     
     public MediateResponse() {
-        this.riskLevel = RiskLevel.SAFE;
-        this.why = "";
+        // Default to HARMFUL for safety - never default to SAFE
+        this.riskLevel = RiskLevel.HARMFUL;
+        this.why = "Message may contain concerning content.";
         this.rewrite = "";
         this.language = "en";
     }
@@ -124,8 +128,9 @@ public class MediateResponse {
     public static MediateResponse fromJson(JSONObject json) {
         MediateResponse response = new MediateResponse();
         
-        response.riskLevel = RiskLevel.fromString(json.optString("risk_level", "safe"));
-        response.why = json.optString("why", "");
+        // Default to "harmful" if risk_level is missing (never default to safe)
+        response.riskLevel = RiskLevel.fromString(json.optString("risk_level", "harmful"));
+        response.why = json.optString("why", "Message may contain concerning content.");
         response.rewrite = json.optString("rewrite", "");
         response.language = json.optString("language", "en");
         

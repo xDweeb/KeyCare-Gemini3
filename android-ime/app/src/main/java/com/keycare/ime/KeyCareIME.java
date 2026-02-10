@@ -1675,13 +1675,13 @@ public class KeyCareIME extends InputMethodService {
             .langHint(langHint)
             .build();
         
-        Log.d(TAG, "Calling Gemini Mediation API - tone: " + tone + ", lang: " + langHint);
+        Log.d(TAG, "[MEDIATE] Calling API - text_len: " + text.length() + ", tone: " + tone + ", lang: " + langHint);
         
         // Make async API call
         mediationApiClient.requestMediation(request, new MediationApiClient.MediationCallback() {
             @Override
             public void onSuccess(MediateResponse response) {
-                Log.d(TAG, "Mediation response: " + response.toString());
+                Log.d(TAG, "[MEDIATE] Response received: " + response.toString());
                 
                 // Store response for rewrite button
                 currentMediationResponse = response;
@@ -1690,6 +1690,8 @@ public class KeyCareIME extends InputMethodService {
                 MediateResponse.RiskLevel riskLevel = response.getRiskLevel();
                 double score = riskLevel.toScore();
                 String label = riskLevel.getDisplayText();
+                
+                Log.d(TAG, "[MEDIATE] Risk: " + riskLevel.getValue() + ", Score: " + score + ", Label: " + label);
                 
                 // Store current values
                 currentLabel = label;
@@ -1705,16 +1707,19 @@ public class KeyCareIME extends InputMethodService {
                         controllerLabel = "OFFENSIVE"; // Controller uses score to distinguish
                     }
                     
+                    Log.d(TAG, "[MEDIATE] Updating UI - controllerLabel: " + controllerLabel + ", score: " + score);
+                    
                     // Update with explanation from Gemini
                     riskUiController.updateRiskWithExplanation(controllerLabel, score, response.getWhy());
                 } else {
+                    Log.d(TAG, "[MEDIATE] Updating badge - label: " + label + ", score: " + score);
                     updateBadge(label, score);
                 }
             }
             
             @Override
             public void onError(String error) {
-                Log.e(TAG, "Mediation API error: " + error);
+                Log.e(TAG, "[MEDIATE] API error: " + error);
                 // On error, keep current state - don't disrupt user
                 // Optionally fall back to local detection
                 currentMediationResponse = null;

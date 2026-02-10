@@ -23,9 +23,9 @@ KeyCare is an **Android keyboard (IME)** that helps users communicate more thoug
 
 ## 🎬 Demo
 
-| Demo Video | Live Landing Page |
-|------------|-------------------|
-| 📹 [Watch Demo](#) *(coming soon)* | 🌐 [keycare.app](#) *(coming soon)* |
+| Live Demo | Backend API | Landing Page |
+|-----------|-------------|--------------|
+| 🎮 [Try Demo](https://xdweeb.github.io/KeyCare-Gemini3/demo) | 🔗 [API Health](https://keycare-gemini3-api-2587283546dc.herokuapp.com/health) | 🌐 [key-care.app](https://xdweeb.github.io/KeyCare-Gemini3/) |
 
 ---
 

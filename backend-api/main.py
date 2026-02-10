@@ -8,6 +8,7 @@ import os
 import json
 import httpx
 import re
+import logging
 from typing import Literal
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -18,12 +19,32 @@ from pydantic import BaseModel, Field
 load_dotenv()
 
 # ============================================
+# Logging Configuration
+# ============================================
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("keycare")
+
+# ============================================
 # Configuration
 # ============================================
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+VERSION = "1.1.0"
+
+# ============================================
+# Profanity Lists (for validation)
+# ============================================
+PROFANITY_EN = {"fuck", "shit", "bitch", "ass", "damn", "bastard", "crap", "dick", "cock", "pussy", "whore", "slut", "retard", "fag", "nigger", "cunt"}
+INSULTS_EN = {"stupid", "idiot", "dumb", "moron", "loser", "ugly", "pathetic", "worthless", "trash", "garbage", "disgusting"}
+PROFANITY_FR = {"merde", "putain", "connard", "connasse", "enculé", "salaud", "salope", "bordel", "nique", "foutre", "con", "conne"}
+INSULTS_FR = {"idiot", "stupide", "débile", "crétin", "nul", "nulle", "imbécile", "abruti"}
+PROFANITY_AR = {"زب", "كس", "نيك", "شرموط", "عاهرة", "منيوك", "طيز", "خرا", "قحبة"}
+INSULTS_AR = {"غبي", "أحمق", "حمار", "تافه", "كلب", "حيوان", "وسخ"}
+PROFANITY_DARIJA = {"zebi", "zeb", "kahba", "9a7ba", "nikomok", "lmok", "tboun", "hmar", "7mar", "mok", "sir t9awed"}
+
+ALL_PROFANITY = PROFANITY_EN | INSULTS_EN | PROFANITY_FR | INSULTS_FR | PROFANITY_AR | INSULTS_AR | PROFANITY_DARIJA
 
 # ============================================
 # FastAPI App
@@ -34,13 +55,15 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# CORS Middleware
+# CORS Middleware - Allow all origins for demo
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=3600,
 )
 
 # ============================================
@@ -87,6 +110,101 @@ class HealthResponse(BaseModel):
 
 
 # ============================================
+# Validation & Sanitization Functions
+# ============================================
+def contains_profanity(text: str) -> bool:
+    """Check if text contains any profanity or insults."""
+    text_lower = text.lower()
+    # Check exact word matches
+    words = set(re.findall(r'\b\w+\b', text_lower))
+    if words & ALL_PROFANITY:
+        return True
+    # Check for Arabic/substring matches
+    for word in ALL_PROFANITY:
+        if word in text_lower:
+            return True
+    return False
+
+
+def normalize_risk_level(risk: str | None) -> str:
+    """Normalize risk_level to lowercase and validate. Default to 'harmful' if invalid."""
+    if not risk:
+        return "harmful"
+    risk_clean = str(risk).strip().lower()
+    if risk_clean in ("safe", "harmful", "dangerous"):
+        return risk_clean
+    return "harmful"
+
+
+def validate_and_fix_response(result: dict, original_text: str, tone: str, lang: str) -> dict:
+    """
+    Validate and fix the Gemini response to ensure it meets requirements.
+    - Normalize risk_level
+    - Ensure 'why' is present
+    - Ensure 'rewrite' is non-empty and profanity-free
+    - Ensure 'language' is valid
+    """
+    # Normalize risk_level
+    risk_level = normalize_risk_level(result.get("risk_level"))
+    
+    # Validate 'why'
+    why = result.get("why", "").strip()
+    if not why:
+        if risk_level == "safe":
+            why = "Message appears respectful."
+        elif risk_level == "harmful":
+            why = "Message contains language that could hurt someone."
+        else:
+            why = "Message contains threatening or dangerous content."
+    
+    # Validate 'rewrite'
+    rewrite = result.get("rewrite", "").strip()
+    if not rewrite:
+        rewrite = get_generic_rewrite(tone, lang)
+    
+    # Validate 'language'
+    language = result.get("language", "en").strip().lower()
+    if language not in ("en", "fr", "ar", "darija"):
+        language = detect_language(original_text, "auto")
+    
+    return {
+        "risk_level": risk_level,
+        "why": why,
+        "rewrite": rewrite,
+        "language": language
+    }
+
+
+def get_generic_rewrite(tone: str, lang: str) -> str:
+    """Get a generic safe rewrite based on tone and language."""
+    rewrites = {
+        "en": {
+            "calm": "I'd like to express my feelings about this calmly.",
+            "friendly": "Hey, I wanted to share my thoughts on this.",
+            "professional": "I would like to address this matter respectfully."
+        },
+        "fr": {
+            "calm": "J'aimerais exprimer mes sentiments calmement.",
+            "friendly": "Salut, je voulais partager mon avis là-dessus.",
+            "professional": "Je souhaiterais aborder ce sujet avec respect."
+        },
+        "ar": {
+            "calm": "أود أن أعبر عن مشاعري بهدوء.",
+            "friendly": "مرحباً، أردت مشاركة رأيي في هذا.",
+            "professional": "أود معالجة هذا الموضوع باحترام."
+        },
+        "darija": {
+            "calm": "بغيت نعبر على رأيي بالهدوء.",
+            "friendly": "أهلا، بغيت نقسم معاك شنو كنفكر.",
+            "professional": "بغيت نتكلم على هاد الموضوع بالاحترام."
+        }
+    }
+    lang_key = lang if lang in rewrites else "en"
+    tone_key = tone if tone in rewrites[lang_key] else "calm"
+    return rewrites[lang_key][tone_key]
+
+
+# ============================================
 # Gemini 3 Integration
 # ============================================
 async def call_gemini_mediation(text: str, tone: str, lang_hint: str) -> dict:
@@ -101,16 +219,51 @@ async def call_gemini_mediation(text: str, tone: str, lang_hint: str) -> dict:
     Returns:
         dict with keys: risk_level, why, rewrite, language
     """
+    # Log incoming request
+    logger.info(f"[MEDIATE] text_len={len(text)}, tone={tone}, lang_hint={lang_hint}")
     
     # If no API key, use fallback heuristics
     if not GEMINI_API_KEY:
-        return fallback_mediation(text, tone, lang_hint)
+        logger.warning("[MEDIATE] No API key, using fallback")
+        result = fallback_mediation(text, tone, lang_hint)
+        return validate_and_fix_response(result, text, tone, lang_hint)
     
-    # Build the prompt
+    # First attempt
+    result = await _call_gemini_once(text, tone, lang_hint)
+    if result is None:
+        result = fallback_mediation(text, tone, lang_hint)
+    
+    # Validate and normalize
+    result = validate_and_fix_response(result, text, tone, lang_hint)
+    
+    # Check if rewrite still contains profanity -> retry with stricter prompt
+    if contains_profanity(result["rewrite"]):
+        logger.warning(f"[MEDIATE] Rewrite contains profanity, retrying with stricter prompt")
+        result = await _call_gemini_strict_retry(text, tone, lang_hint, result["language"])
+        result = validate_and_fix_response(result, text, tone, lang_hint)
+        
+        # If still contains profanity, force generic rewrite
+        if contains_profanity(result["rewrite"]):
+            logger.warning(f"[MEDIATE] Rewrite still has profanity, forcing generic")
+            result["rewrite"] = get_generic_rewrite(tone, result["language"])
+            result["risk_level"] = "harmful"
+    
+    # Final check: if original text has profanity but marked safe, override to harmful
+    if result["risk_level"] == "safe" and contains_profanity(text):
+        logger.warning(f"[MEDIATE] Original has profanity but marked safe, overriding to harmful")
+        result["risk_level"] = "harmful"
+        result["why"] = "Message contains inappropriate language."
+    
+    logger.info(f"[MEDIATE] Final: risk={result['risk_level']}, lang={result['language']}, rewrite_len={len(result['rewrite'])}")
+    
+    return result
+
+
+async def _call_gemini_once(text: str, tone: str, lang_hint: str) -> dict | None:
+    """Single call to Gemini API."""
     system_prompt = build_system_prompt(tone, lang_hint)
     user_message = f'Analyze this message: "{text}"'
     
-    # Gemini API endpoint
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
     
     payload = {
@@ -123,8 +276,8 @@ async def call_gemini_mediation(text: str, tone: str, lang_hint: str) -> dict:
             }
         ],
         "generationConfig": {
-            "temperature": 0.7,
-            "topP": 0.9,
+            "temperature": 0.3,  # Lower temperature for more consistent output
+            "topP": 0.8,
             "maxOutputTokens": 500,
             "responseMimeType": "application/json"
         },
@@ -146,40 +299,91 @@ async def call_gemini_mediation(text: str, tone: str, lang_hint: str) -> dict:
             )
             
             if response.status_code != 200:
-                if DEBUG:
-                    print(f"Gemini API error: {response.status_code} - {response.text}")
-                return fallback_mediation(text, tone, lang_hint)
+                logger.error(f"[GEMINI] API error: {response.status_code} - {response.text[:200]}")
+                return None
             
             data = response.json()
             
             # Extract text from Gemini response
             candidates = data.get("candidates", [])
             if not candidates:
-                return fallback_mediation(text, tone, lang_hint)
+                logger.warning("[GEMINI] No candidates in response")
+                return None
             
             content = candidates[0].get("content", {})
             parts = content.get("parts", [])
             if not parts:
-                return fallback_mediation(text, tone, lang_hint)
+                logger.warning("[GEMINI] No parts in response")
+                return None
             
             response_text = parts[0].get("text", "")
+            logger.info(f"[GEMINI] Raw response: {response_text[:150]}...")
             
             # Parse JSON response from Gemini
             result = parse_gemini_json(response_text)
-            
-            if result:
-                return result
-            else:
-                return fallback_mediation(text, tone, lang_hint)
+            return result
                 
     except httpx.TimeoutException:
-        if DEBUG:
-            print("Gemini API timeout")
-        return fallback_mediation(text, tone, lang_hint)
+        logger.error("[GEMINI] Request timeout")
+        return None
     except Exception as e:
-        if DEBUG:
-            print(f"Gemini API exception: {e}")
-        return fallback_mediation(text, tone, lang_hint)
+        logger.error(f"[GEMINI] Exception: {e}")
+        return None
+
+
+async def _call_gemini_strict_retry(text: str, tone: str, lang_hint: str, detected_lang: str) -> dict:
+    """Retry with an even stricter prompt for rewrite-only."""
+    strict_prompt = f"""The previous rewrite still contained profanity. Generate a COMPLETELY CLEAN rewrite.
+
+RULES:
+- NO profanity, insults, or negative language whatsoever
+- Use {detected_lang} language
+- Tone: {tone}
+- Express the frustration constructively without attacking anyone
+
+Original message: "{text}"
+
+Return ONLY valid JSON:
+{{"risk_level": "harmful", "why": "Contains inappropriate language.", "rewrite": "YOUR_CLEAN_REWRITE_HERE", "language": "{detected_lang}"}}"""
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+    
+    payload = {
+        "contents": [{"parts": [{"text": strict_prompt}]}],
+        "generationConfig": {
+            "temperature": 0.1,
+            "maxOutputTokens": 300,
+            "responseMimeType": "application/json"
+        }
+    }
+    
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.post(
+                url,
+                json=payload,
+                params={"key": GEMINI_API_KEY},
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                candidates = data.get("candidates", [])
+                if candidates:
+                    response_text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                    result = parse_gemini_json(response_text)
+                    if result:
+                        return result
+    except Exception as e:
+        logger.error(f"[GEMINI] Strict retry failed: {e}")
+    
+    # Fallback to generic
+    return {
+        "risk_level": "harmful",
+        "why": "Contains inappropriate language.",
+        "rewrite": get_generic_rewrite(tone, detected_lang),
+        "language": detected_lang
+    }
 
 
 def parse_gemini_json(response_text: str) -> dict | None:
@@ -284,47 +488,82 @@ def detect_language(text: str, lang_hint: str) -> str:
 
 def build_system_prompt(tone: str, lang_hint: str) -> str:
     """
-    Build the system prompt for Gemini 3.
+    Build the STRICT system prompt for Gemini 3.
     
-    This is the official KeyCare mediation prompt that instructs Gemini
-    to analyze messages and provide respectful rewrites.
+    This prompt is designed to NEVER let profanity/insults pass as "safe".
     """
-    return f"""You are KeyCare, a real-time communication mediation assistant inside an Android keyboard.
+    return f"""You are KeyCare, a strict communication safety filter inside an Android keyboard.
 
-Task:
-Given a user message, detect communication risk and propose a respectful rewrite that preserves intent.
+CRITICAL TASK: Detect harmful language and ALWAYS rewrite it to be completely clean and respectful.
 
-Return ONLY valid JSON (no markdown, no extra text). Use this exact schema:
+Output ONLY valid JSON (no markdown, no extra text). Use this exact schema:
 {{
   "risk_level": "safe" | "harmful" | "dangerous",
-  "why": "one short sentence explaining the risk",
-  "rewrite": "rewritten message in the SAME language as the input",
+  "why": "one short sentence explaining why",
+  "rewrite": "completely clean rewrite with NO profanity/insults",
   "language": "en" | "fr" | "ar" | "darija"
 }}
 
-Rules:
-- The user stays in control. Do not refuse unless the content is clearly dangerous.
-- If the message is "safe", still return a slightly improved rewrite (optional), but keep it close to original.
-- If the input is Arabic dialect (Darija), set language="darija" and rewrite in Darija (Arabic script or Latin mix allowed).
-- Keep the rewrite concise and natural. No lecturing.
-- If the message includes direct threats or explicit violent intent, set risk_level="dangerous" and rewrite to a non-threatening de-escalation statement.
-- Do not include personal data. Do not add new facts.
-- Output must be strictly valid JSON.
+STRICT CLASSIFICATION RULES (FOLLOW EXACTLY):
+1. DANGEROUS = threats, violence, self-harm, calls to attack/kill someone
+2. HARMFUL = ANY of these: insults, profanity, slurs, mockery, name-calling, passive-aggressive attacks, sarcasm meant to hurt, condescension, harassment, bullying
+3. SAFE = ONLY if the message is genuinely polite, constructive, and contains ZERO negativity toward anyone
 
-Inputs:
-text: "{{{{TEXT}}}}"
-tone: "{tone}"   (one of: calm, friendly, professional)
-lang_hint: "{lang_hint}" (auto, en, fr, ar, darija)
+COMMON HARMFUL PATTERNS (mark as "harmful"):
+- "you are stupid/idiot/dumb/loser" -> HARMFUL
+- "shut up" -> HARMFUL  
+- "you suck" / "this sucks" -> HARMFUL
+- "I hate you" / "nobody likes you" -> HARMFUL
+- Any curse words (fuck, shit, damn, merde, etc.) -> HARMFUL
+- Any Arabic insults (غبي، حمار، etc.) -> HARMFUL
+- Darija insults (hmar, zebi, 9a7ba, etc.) -> HARMFUL
 
-Tone control:
-- calm: de-escalate and soften
-- friendly: warm and polite
-- professional: formal and respectful"""
+REWRITE RULES (CRITICAL):
+- The rewrite MUST be 100% clean - NO profanity, NO insults, NO negativity
+- Remove ALL offensive words completely, don't just soften them
+- Keep the same language as input (EN/FR/AR/Darija)
+- Preserve the user's core intent (frustration is OK, insults are NOT)
+- Be concise and natural, not preachy
+
+EXAMPLES:
+Input: "You are so stupid"
+Output: {{"risk_level": "harmful", "why": "Contains a direct insult.", "rewrite": "I think there might be a misunderstanding here.", "language": "en"}}
+
+Input: "Fuck off"  
+Output: {{"risk_level": "harmful", "why": "Contains profanity and dismissive language.", "rewrite": "I need some space right now.", "language": "en"}}
+
+Input: "أنت غبي جداً"
+Output: {{"risk_level": "harmful", "why": "يحتوي على إهانة مباشرة.", "rewrite": "أعتقد أننا نختلف في الرأي.", "language": "ar"}}
+
+Input: "Thanks for your help!"
+Output: {{"risk_level": "safe", "why": "Message is polite and appreciative.", "rewrite": "Thanks for your help!", "language": "en"}}
+
+Tone preference: {tone}
+Language hint: {lang_hint}
+
+NOW ANALYZE THE USER'S MESSAGE AND RESPOND WITH ONLY THE JSON:"""
 
 
 # ============================================
 # API Endpoints
 # ============================================
+@app.get("/", tags=["Root"])
+async def root():
+    """Root endpoint - API info."""
+    return {
+        "name": "KeyCare-Gemini3 API",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
+
+@app.options("/mediate")
+async def mediate_options():
+    """CORS preflight handler for /mediate endpoint."""
+    return {"status": "ok"}
+
+
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
 async def health_check():
     """
@@ -334,7 +573,7 @@ async def health_check():
     """
     return HealthResponse(
         status="healthy",
-        version="1.0.0",
+        version=VERSION,
         gemini_configured=bool(GEMINI_API_KEY)
     )
 
@@ -350,12 +589,6 @@ async def mediate_message(request: MediationRequest):
     - Rewrites the message in a respectful tone
     - Detects the language
     """
-    if not GEMINI_API_KEY:
-        # In production, you might want to return an error
-        # For hackathon demo, we'll use the placeholder response
-        if DEBUG:
-            print("Warning: GEMINI_API_KEY not configured, using fallback heuristics")
-    
     try:
         result = await call_gemini_mediation(
             text=request.text,
@@ -371,11 +604,13 @@ async def mediate_message(request: MediationRequest):
         )
     
     except Exception as e:
-        if DEBUG:
-            raise HTTPException(status_code=500, detail=str(e))
-        raise HTTPException(
-            status_code=500, 
-            detail="An error occurred while processing your request"
+        logger.error(f"[MEDIATE] Exception: {e}")
+        # Return a safe fallback rather than crashing
+        return MediationResponse(
+            risk_level="harmful",
+            why="Unable to process message.",
+            rewrite="I'd like to express my thoughts respectfully.",
+            language="en"
         )
 
 
